@@ -9,7 +9,7 @@ mod logger;
 mod sbi;
 
 use core::arch::global_asm;
-use log::{debug, info};
+use log::{debug, error, info, trace, warn};
 global_asm!(include_str!("entry.asm"));
 
 #[no_mangle]
@@ -18,8 +18,13 @@ pub fn rust_main() -> ! {
     logger::init().unwrap();
 
     print_layout();
-    info!("shutdown now");
+    trace!("this is trace");
     debug!("this is debug");
+    info!("this is info");
+    warn!("this is warn");
+    error!("this is error");
+
+    warn!("shutdown now");
     sbi::shutdown();
 }
 

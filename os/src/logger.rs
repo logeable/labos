@@ -15,7 +15,13 @@ impl log::Log for Logger {
 
     fn log(&self, record: &log::Record) {
         if self.enabled(record.metadata()) {
-            println!("{} - {}", record.level(), record.args());
+            match record.level() {
+                Level::Error => println!("\x1b[31m{} - {}\x1b[0m", record.level(), record.args()),
+                Level::Warn => println!("\x1b[93m{} - {}\x1b[0m", record.level(), record.args()),
+                Level::Info => println!("\x1b[36m{} - {}\x1b[0m", record.level(), record.args()),
+                Level::Debug => println!("\x1b[37m{} - {}\x1b[0m", record.level(), record.args()),
+                Level::Trace => println!("\x1b[90m{} - {}\x1b[0m", record.level(), record.args()),
+            };
         }
     }
 
@@ -23,5 +29,6 @@ impl log::Log for Logger {
 }
 
 pub fn init() -> Result<(), SetLoggerError> {
-    log::set_logger(&LOGGER).map(|()| log::set_max_level(LevelFilter::Debug))
+    let log_level = option_env!("LOG").unwrap_or("INFO");
+    log::set_logger(&LOGGER).map(|()| log::set_max_level(LevelFilter::from_str(log_level).unwrap()))
 }
