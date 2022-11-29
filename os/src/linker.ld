@@ -34,7 +34,9 @@ SECTIONS
 
     ssbss = .;
     .bss : {
+        sstack = .;
         *(.bss.stack)
+        estack = .;
         sbss = .;
         *(.bss .bss.*)
         *(.sbss .sbss.*)
