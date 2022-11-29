@@ -1,0 +1,34 @@
+OS_DIR=target/riscv64gc-unknown-none-elf/release
+OS=${OS_DIR}/os
+OS_BIN=${OS}.bin
+BOOT_LOADER=../bootloader/rustsbi-qemu.bin
+SKERNEL=0x80200000
+
+os:
+	cargo build --release
+os.bin: os
+	rust-objcopy --strip-all ${OS} -O binary ${OS_BIN}
+
+qemu: os.bin
+	qemu-system-riscv64 \
+		-machine virt \
+		-nographic \
+		-bios ${BOOT_LOADER} \
+		-device loader,file=${OS_BIN},addr=${SKERNEL}
+
+gdbserver: os.bin
+	qemu-system-riscv64 \
+		-machine virt \
+		-nographic \
+		-bios ${BOOT_LOADER} \
+		-device loader,file=${OS_BIN},addr=${SKERNEL} \
+		-s -S
+
+gdbclient:
+	riscv64-unknown-elf-gdb \
+		-ex 'file ${OS}' \
+		-ex 'set arch riscv:rv64' \
+		-ex 'target remote localhost:1234'
+
+nm:
+	riscv64-unknown-elf-nm ${OS}
