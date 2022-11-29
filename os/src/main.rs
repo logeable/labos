@@ -1,6 +1,11 @@
 #![no_std]
 #![no_main]
+#![feature(panic_info_message)]
+
+#[macro_use]
+mod console;
 mod lang_items;
+mod sbi;
 
 use core::arch::global_asm;
 global_asm!(include_str!("entry.asm"));
@@ -8,7 +13,9 @@ global_asm!(include_str!("entry.asm"));
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
-    loop {}
+    let msg = "this is simple kernel";
+    println!("{}", msg);
+    panic!("shutdown!");
 }
 
 fn clear_bss() {
