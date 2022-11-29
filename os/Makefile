@@ -9,7 +9,7 @@ os:
 os.bin: os
 	rust-objcopy --strip-all ${OS} -O binary ${OS_BIN}
 
-qemu: os.bin
+run: os.bin
 	qemu-system-riscv64 \
 		-machine virt \
 		-nographic \
