@@ -5,16 +5,21 @@
 #[macro_use]
 mod console;
 mod lang_items;
+mod logger;
 mod sbi;
 
 use core::arch::global_asm;
+use log::{debug, info};
 global_asm!(include_str!("entry.asm"));
 
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
-    print_layout();
+    logger::init().unwrap();
 
+    print_layout();
+    info!("shutdown now");
+    debug!("this is debug");
     sbi::shutdown();
 }
 
