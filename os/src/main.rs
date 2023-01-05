@@ -42,6 +42,9 @@ fn print_layout() {
         fn stext();
         fn etext();
 
+        fn srodata();
+        fn erodata();
+
         fn sdata();
         fn edata();
 
@@ -57,6 +60,7 @@ fn print_layout() {
         skernel as usize, ekernel as usize, rust_main as usize
     );
     println!(".text [{:#x}, {:#x}]", stext as usize, etext as usize);
+    println!(".rodata [{:#x}, {:#x}]", srodata as usize, erodata as usize);
     println!(".data [{:#x}, {:#x}]", sdata as usize, edata as usize);
     println!("stack [{:#x}, {:#x}]", sstack as usize, estack as usize);
     println!(".bss [{:#x}, {:#x}]", sbss as usize, ebss as usize);
