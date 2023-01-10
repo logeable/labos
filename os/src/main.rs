@@ -4,18 +4,24 @@
 
 #[macro_use]
 mod console;
+mod batch;
 mod lang_items;
 mod logger;
 mod sbi;
+mod sync;
+mod syscall;
+mod trap;
 
 use core::arch::global_asm;
 use log::{debug, error, info, trace, warn};
 global_asm!(include_str!("entry.asm"));
+global_asm!(include_str!("link_app.asm"));
 
 #[no_mangle]
 pub fn rust_main() -> ! {
     clear_bss();
     logger::init().unwrap();
+    trap::init();
 
     print_layout();
     trace!("this is trace");
@@ -24,6 +30,8 @@ pub fn rust_main() -> ! {
     warn!("this is warn");
     error!("this is error");
 
+    batch::run_next_app();
+    
     warn!("shutdown now");
     sbi::shutdown();
 }

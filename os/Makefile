@@ -4,12 +4,18 @@ OS_BIN=${OS}.bin
 BOOT_LOADER=../bootloader/rustsbi-qemu.bin
 SKERNEL=0x80200000
 
-os:
+user_bin:
+	@cd ../user && make build
+	
+os: user_bin
 	cargo build --release
 os.bin: os
 	rust-objcopy --strip-all ${OS} -O binary ${OS_BIN}
 
-run: os.bin
+link_app.asm:
+	cargo build
+	
+run: os.bin link_app.asm
 	qemu-system-riscv64 \
 		-machine virt \
 		-nographic \
