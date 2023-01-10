@@ -8,10 +8,10 @@ mod batch;
 mod lang_items;
 mod logger;
 mod sbi;
+mod stack_trace;
 mod sync;
 mod syscall;
 mod trap;
-mod stack_trace;
 
 use core::arch::global_asm;
 global_asm!(include_str!("entry.asm"));
@@ -22,6 +22,7 @@ pub fn rust_main() -> ! {
     clear_bss();
     logger::init().unwrap();
     trap::init();
+    batch::init();
 
     print_layout();
     batch::run_next_app();

@@ -33,10 +33,12 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
         }
         Trap::Exception(Exception::StoreFault) | Trap::Exception(Exception::StorePageFault) => {
             println!("[kernel] PageFault in application, kernel killed it.");
+            print_fault_instruction(cx.sepc);
             run_next_app();
         }
         Trap::Exception(Exception::IllegalInstruction) => {
             println!("[kernel] IllegalInstruction in application, kernel killed it.");
+            print_fault_instruction(cx.sepc);
             run_next_app();
         }
         _ => {
@@ -48,4 +50,12 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
         }
     }
     cx
+}
+
+fn print_fault_instruction(sepc: usize) {
+    println!(
+        "[kernel] sepc = {:#016x}, instruction = {:032b}",
+        sepc,
+        unsafe { *(sepc as *const u32) }
+    );
 }

@@ -9,6 +9,7 @@ const APP_SIZE_LIMIT: usize = 0x20000;
 const APP_BASE_ADDRESS: usize = 0x80400000;
 const USER_STACK_SIZE: usize = 4096 * 2;
 const KERNEL_STACK_SIZE: usize = 4096 * 2;
+const SYSCALL_LIMIT: usize = 65535;
 
 #[repr(align(4096))]
 struct KernelStack {
@@ -64,6 +65,7 @@ lazy_static! {
                 num_app,
                 current_app: 0,
                 app_start,
+                syscall_counter: [0; SYSCALL_LIMIT],
             }
         })
     };
@@ -73,6 +75,7 @@ pub struct AppManager {
     num_app: usize,
     current_app: usize,
     app_start: [usize; MAX_APP_NUM + 1],
+    syscall_counter: [usize; SYSCALL_LIMIT],
 }
 
 impl AppManager {
@@ -103,6 +106,15 @@ impl AppManager {
                 self.app_start[i + 1]
             );
         }
+        self.syscall_counter
+            .iter()
+            .enumerate()
+            .for_each(|(i, &id)| match id {
+                id if id != 0 => {
+                    println!("[kernel] syscall {} = {}", i, id,)
+                }
+                _ => (),
+            });
     }
 
     pub fn get_current_app(&self) -> usize {
@@ -111,6 +123,11 @@ impl AppManager {
 
     pub fn move_to_next_app(&mut self) {
         self.current_app += 1;
+        self.syscall_counter = [0; SYSCALL_LIMIT];
+    }
+
+    pub fn syscall_increase(&mut self, syscall_id: usize) {
+        self.syscall_counter[syscall_id] += 1;
     }
 }
 
@@ -132,4 +149,35 @@ pub fn run_next_app() -> ! {
         )) as *const _ as usize);
     }
     unreachable!("Unreachable in batch::run_current_app!");
+}
+
+pub fn validate_addr(begin: usize, end: usize) -> bool {
+    let mut app_manager = APP_MANAGER.exclusive_access();
+    let id = app_manager.get_current_app();
+    let len = app_manager.app_start[id] - app_manager.app_start[id - 1];
+    drop(app_manager);
+
+    let addr_begin = APP_BASE_ADDRESS;
+    let addr_end = addr_begin + len;
+
+    if addr_begin < begin && end < addr_end {
+        return true;
+    }
+
+    let addr_begin = USER_STACK.data.as_ptr() as usize;
+    let addr_end = addr_begin + USER_STACK_SIZE;
+
+    if addr_begin < begin && end < addr_end {
+        return true;
+    }
+
+    println!(
+        "{:016x} {:016x} {:016x} {:016x}",
+        begin, end, addr_begin, addr_end
+    );
+    false
+}
+
+pub fn init() {
+    APP_MANAGER.exclusive_access().print_app_info();
 }

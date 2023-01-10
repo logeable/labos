@@ -2,7 +2,7 @@ use core::fmt::{self, Write};
 
 use crate::write;
 
-const STDOUT: usize = 1;
+pub const STDOUT: usize = 1;
 
 struct Stdout;
 
