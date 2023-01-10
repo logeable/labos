@@ -2,7 +2,7 @@
 #![feature(linkage)]
 #![feature(panic_info_message)]
 
-use syscall::{sys_exit, sys_write};
+use syscall::{sys_exit, sys_taskinfo, sys_write};
 
 #[macro_use]
 pub mod console;
@@ -38,4 +38,8 @@ pub fn write(fd: usize, buf: &[u8]) -> isize {
 pub fn exit(exit_code: i32) -> ! {
     sys_exit(exit_code);
     unreachable!();
+}
+
+pub fn taskinfo() -> isize {
+    sys_taskinfo()
 }
