@@ -152,7 +152,7 @@ pub fn run_next_app() -> ! {
 }
 
 pub fn validate_addr(begin: usize, end: usize) -> bool {
-    let mut app_manager = APP_MANAGER.exclusive_access();
+    let app_manager = APP_MANAGER.exclusive_access();
     let id = app_manager.get_current_app();
     let len = app_manager.app_start[id] - app_manager.app_start[id - 1];
     drop(app_manager);
