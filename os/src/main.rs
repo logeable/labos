@@ -11,6 +11,7 @@ mod sbi;
 mod sync;
 mod syscall;
 mod trap;
+mod stack_trace;
 
 use core::arch::global_asm;
 global_asm!(include_str!("entry.asm"));
