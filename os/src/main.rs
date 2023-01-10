@@ -13,7 +13,6 @@ mod syscall;
 mod trap;
 
 use core::arch::global_asm;
-use log::{debug, error, info, trace, warn};
 global_asm!(include_str!("entry.asm"));
 global_asm!(include_str!("link_app.asm"));
 
@@ -24,16 +23,7 @@ pub fn rust_main() -> ! {
     trap::init();
 
     print_layout();
-    trace!("this is trace");
-    debug!("this is debug");
-    info!("this is info");
-    warn!("this is warn");
-    error!("this is error");
-
     batch::run_next_app();
-    
-    warn!("shutdown now");
-    sbi::shutdown();
 }
 
 fn clear_bss() {
