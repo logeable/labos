@@ -1,6 +1,11 @@
+use core::option_env;
 use core::{arch::asm, ptr};
 
 pub unsafe fn print_stack_trace() -> () {
+    let trace = option_env!("TRACE").unwrap_or("false");
+    if trace != "true" {
+        return;
+    }
     let mut fp: *const usize;
     asm!("mv {}, fp", out(reg) fp);
     println!("== Begin stack trace ==");
