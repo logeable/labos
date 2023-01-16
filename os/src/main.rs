@@ -13,6 +13,7 @@ mod stack_trace;
 mod sync;
 mod syscall;
 mod task;
+mod timer;
 mod trap;
 
 use core::arch::global_asm;
@@ -27,6 +28,8 @@ pub fn rust_main() -> ! {
     loader::load_apps();
 
     print_layout();
+    trap::enable_timer_interrupt();
+    timer::set_next_trigger();
     task::run_first_task();
     unreachable!()
 }

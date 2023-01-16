@@ -2,7 +2,7 @@
 #![feature(linkage)]
 #![feature(panic_info_message)]
 
-use syscall::{sys_exit, sys_write, sys_yield};
+use syscall::{sys_exit, sys_get_time, sys_write, sys_yield};
 
 #[macro_use]
 pub mod console;
@@ -42,4 +42,8 @@ pub fn exit(exit_code: i32) -> ! {
 
 pub fn yield_() -> isize {
     sys_yield()
+}
+
+pub fn get_time() -> isize {
+    sys_get_time()
 }
