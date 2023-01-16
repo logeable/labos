@@ -6,7 +6,7 @@ use riscv::register::{
     utvec::TrapMode,
 };
 
-use crate::{batch::run_next_app, syscall};
+use crate::{syscall, task::exit_current_and_run_next};
 
 pub use context::TrapContext;
 
@@ -34,12 +34,12 @@ pub fn trap_handler(cx: &mut TrapContext) -> &mut TrapContext {
         Trap::Exception(Exception::StoreFault) | Trap::Exception(Exception::StorePageFault) => {
             println!("[kernel] PageFault in application, kernel killed it.");
             print_fault_instruction(cx.sepc);
-            run_next_app();
+            exit_current_and_run_next();
         }
         Trap::Exception(Exception::IllegalInstruction) => {
             println!("[kernel] IllegalInstruction in application, kernel killed it.");
             print_fault_instruction(cx.sepc);
-            run_next_app();
+            exit_current_and_run_next();
         }
         _ => {
             panic!(

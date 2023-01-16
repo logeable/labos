@@ -4,13 +4,15 @@
 
 #[macro_use]
 mod console;
-mod batch;
+mod config;
 mod lang_items;
+mod loader;
 mod logger;
 mod sbi;
 mod stack_trace;
 mod sync;
 mod syscall;
+mod task;
 mod trap;
 
 use core::arch::global_asm;
@@ -22,10 +24,11 @@ pub fn rust_main() -> ! {
     clear_bss();
     logger::init().unwrap();
     trap::init();
-    batch::init();
+    loader::load_apps();
 
     print_layout();
-    batch::run_next_app();
+    task::run_first_task();
+    unreachable!()
 }
 
 fn clear_bss() {

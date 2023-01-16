@@ -6,7 +6,8 @@ extern crate user_lib;
 
 #[no_mangle]
 fn main() -> i32 {
-    println!("should print taskinfo");
-    user_lib::taskinfo();
+    println!("before yield");
+    user_lib::yield_();
+    println!("after yield");
     0
 }

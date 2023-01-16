@@ -2,7 +2,7 @@
 #![feature(linkage)]
 #![feature(panic_info_message)]
 
-use syscall::{sys_exit, sys_taskinfo, sys_write};
+use syscall::{sys_exit, sys_write, sys_yield};
 
 #[macro_use]
 pub mod console;
@@ -40,6 +40,6 @@ pub fn exit(exit_code: i32) -> ! {
     unreachable!();
 }
 
-pub fn taskinfo() -> isize {
-    sys_taskinfo()
+pub fn yield_() -> isize {
+    sys_yield()
 }
