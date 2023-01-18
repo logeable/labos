@@ -4,6 +4,7 @@
 #![feature(alloc_error_handler)]
 
 extern crate alloc;
+
 #[macro_use]
 mod console;
 mod config;

@@ -7,11 +7,15 @@ static HEAP_ALLOCATOR: LockedHeap<32> = LockedHeap::empty();
 static mut HEAP_SPACE: [u8; KERNEL_HEAP_SIZE] = [0; KERNEL_HEAP_SIZE];
 
 pub fn init_heap() {
+    let mut ha = HEAP_ALLOCATOR.lock();
     unsafe {
-        HEAP_ALLOCATOR
-            .lock()
-            .init(HEAP_SPACE.as_ptr() as usize, KERNEL_HEAP_SIZE);
+        ha.init(HEAP_SPACE.as_ptr() as usize, KERNEL_HEAP_SIZE);
     }
+    println!(
+        "KERNEL HEAP total = {}, alloc = {}",
+        ha.stats_total_bytes(),
+        ha.stats_alloc_actual()
+    )
 }
 
 #[alloc_error_handler]
