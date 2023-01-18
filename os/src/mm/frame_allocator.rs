@@ -69,7 +69,7 @@ pub struct FrameTracker {
 
 impl FrameTracker {
     pub fn new(ppn: PhysPageNum) -> Self {
-        ppn.clear();
+        ppn.clear_page();
         Self { ppn }
     }
 }
