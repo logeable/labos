@@ -9,8 +9,9 @@ BINS := $(patsubst $(APP_DIR)/%.rs, $(TARGET_DIR)/%.bin, $(APPS))
 OBJCOPY := rust-objcopy --binary-architecture=riscv64
 
 elf: 
-	./build.py
-
+	cargo build --bins --release
+	
 binary: elf
 	$(foreach elf, $(ELFS), $(OBJCOPY) $(elf) --strip-all -O binary $(patsubst $(TARGET_DIR)/%, $(TARGET_DIR)/%.bin, $(elf));)
+	
 build: binary
