@@ -1,4 +1,4 @@
-use core::slice;
+use core::{fmt::Debug, slice};
 
 use crate::config::{PAGE_SIZE, PAGE_SIZE_BITS};
 
@@ -156,3 +156,84 @@ impl VirtPageNum {
         idx
     }
 }
+
+impl StepByOne for VirtPageNum {
+    fn step(&mut self) {
+        self.0 += 1;
+    }
+}
+
+pub trait StepByOne {
+    fn step(&mut self);
+}
+
+#[derive(Clone, Copy)]
+pub struct SimpleRange<T> {
+    start: T,
+    end: T,
+}
+
+impl<T> SimpleRange<T>
+where
+    T: StepByOne + Copy + PartialEq + PartialOrd + Debug,
+{
+    pub fn new(start: T, end: T) -> Self {
+        assert!(start <= end);
+        Self { start, end }
+    }
+    pub fn get_start(&self) -> T {
+        self.start
+    }
+    pub fn get_end(&self) -> T {
+        self.end
+    }
+}
+
+impl<T> IntoIterator for SimpleRange<T>
+where
+    T: StepByOne + Copy + PartialEq + PartialOrd + Debug,
+{
+    type Item = T;
+
+    type IntoIter = SimpleRangeIterator<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        SimpleRangeIterator::new(self.start, self.end)
+    }
+}
+
+pub struct SimpleRangeIterator<T>
+where
+    T: StepByOne + Copy + PartialEq + PartialOrd + Debug,
+{
+    current: T,
+    end: T,
+}
+
+impl<T> SimpleRangeIterator<T>
+where
+    T: StepByOne + Copy + PartialEq + PartialOrd + Debug,
+{
+    fn new(current: T, end: T) -> Self {
+        Self { current, end }
+    }
+}
+
+impl<T> Iterator for SimpleRangeIterator<T>
+where
+    T: StepByOne + Copy + PartialEq + PartialOrd + Debug,
+{
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.current == self.end {
+            None
+        } else {
+            let t = self.current;
+            self.current.step();
+            Some(t)
+        }
+    }
+}
+
+pub type VPNRange = SimpleRange<VirtPageNum>;

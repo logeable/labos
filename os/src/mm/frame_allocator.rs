@@ -41,7 +41,7 @@ impl FrameAllocator for StackFrameAllocator {
                 None
             } else {
                 self.current += 1;
-                Some((self.current - 1).into())
+                Some(PhysPageNum::from(self.current - 1))
             }
         }
     }
