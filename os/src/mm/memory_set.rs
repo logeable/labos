@@ -1,17 +1,34 @@
-use alloc::{collections::BTreeMap, vec::Vec};
+use core::arch::asm;
+
+use alloc::{
+    collections::BTreeMap,
+    format,
+    string::{String, ToString},
+    sync::Arc,
+    vec::Vec,
+};
 use bitflags::bitflags;
+use lazy_static::lazy_static;
+
+use riscv::register::satp;
 use xmas_elf::{program, ElfFile};
 
 use crate::{
     config::{MEMORY_END, PAGE_SIZE, TRAMPOLINE, TRAP_CONTEXT, USER_STACK_SIZE},
     mm::address::StepByOne,
+    sync::UPSafeCell,
 };
 
 use super::{
-    address::{PhysPageNum, VPNRange, VirtAddr, VirtPageNum},
+    address::{PhysAddr, PhysPageNum, VPNRange, VirtAddr, VirtPageNum},
     frame_allocator::{frame_alloc, FrameTracker},
     page_table::{PTEFlags, PageTable},
 };
+
+lazy_static! {
+    pub static ref KERNEL_SPACE: Arc<UPSafeCell<MemorySet>> =
+        unsafe { Arc::new(UPSafeCell::new(MemorySet::new_kernel())) };
+}
 
 pub struct MapArea {
     vpn_range: VPNRange,
@@ -148,7 +165,6 @@ impl MemorySet {
     }
     pub fn new_kernel() -> Self {
         let mut memory_set = Self::new_bare();
-
         // trampoline
         memory_set.map_trampoline();
         // .text section
@@ -203,6 +219,7 @@ impl MemorySet {
         );
         memory_set
     }
+
     pub fn from_elf(elf_data: &[u8]) -> (Self, usize, usize) {
         let mut memory_set = Self::new_bare();
 
@@ -274,13 +291,26 @@ impl MemorySet {
     }
 
     fn map_trampoline(&mut self) {
-        todo!()
+        self.page_table.map(
+            VirtAddr::from(TRAMPOLINE).into(),
+            PhysAddr::from(strampoline as usize).into(),
+            PTEFlags::R | PTEFlags::X,
+        )
+    }
+
+    pub fn activate(&self) {
+        let satp = self.page_table.token();
+        unsafe {
+            satp::write(satp);
+            asm!("sfence.vma");
+        }
     }
 }
 
 extern "C" {
     fn skernel();
     fn stext();
+    fn strampoline();
     fn etext();
 
     fn srodata();
@@ -295,4 +325,8 @@ extern "C" {
     fn sbss();
     fn ebss();
     fn ekernel();
+}
+
+pub fn init_memory_set() {
+    KERNEL_SPACE.exclusive_access().activate();
 }

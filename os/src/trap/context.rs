@@ -5,6 +5,9 @@ pub struct TrapContext {
     pub x: [usize; 32],
     pub sstatus: Sstatus,
     pub sepc: usize,
+    pub kernel_satp: usize,
+    pub kernel_sp: usize,
+    pub trap_handler: usize,
 }
 
 impl TrapContext {
@@ -19,6 +22,9 @@ impl TrapContext {
             x: [0; 32],
             sstatus,
             sepc: entry,
+            kernel_satp: todo!(),
+            kernel_sp: todo!(),
+            trap_handler: todo!(),
         };
         cx.set_sp(sp);
         cx

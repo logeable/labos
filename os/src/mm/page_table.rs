@@ -72,7 +72,7 @@ impl PageTable {
     pub fn map(&mut self, vpn: VirtPageNum, ppn: PhysPageNum, flags: PTEFlags) {
         let pte = self.find_pte_create(vpn).unwrap();
         assert!(!pte.is_valid(), "vpn {:?} is mapped before mapping", ppn);
-        *pte = PageTableEntry::new(ppn, PTEFlags::V);
+        *pte = PageTableEntry::new(ppn, PTEFlags::V | flags);
     }
 
     pub fn unmap(&mut self, vpn: VirtPageNum) {
@@ -130,5 +130,9 @@ impl PageTable {
             ppn = pte.ppn();
         }
         None
+    }
+
+    pub fn token(&self) -> usize {
+        8usize << 60 | self.root_ppn.0
     }
 }
