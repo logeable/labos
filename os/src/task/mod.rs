@@ -2,6 +2,8 @@ use lazy_static::lazy_static;
 
 use manager::TaskManager;
 
+use crate::trap::TrapContext;
+
 mod context;
 mod manager;
 mod switch;
@@ -35,4 +37,12 @@ fn mark_current_exited() {
 
 fn mark_current_suspended() {
     TASK_MANAGER.mark_current_suspended();
+}
+
+pub fn current_user_token() -> usize {
+    TASK_MANAGER.get_current_token()
+}
+
+pub fn current_trap_cx() -> &'static mut TrapContext {
+    TASK_MANAGER.get_current_trap_cx()
 }

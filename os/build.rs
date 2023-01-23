@@ -16,6 +16,15 @@ fn insert_app_data() -> Result<()> {
     let mut apps: Vec<_> = read_dir("../user/src/bin")
         .unwrap()
         .into_iter()
+        // .filter(|dir_entry| {
+        //     dir_entry
+        //         .as_ref()
+        //         .unwrap()
+        //         .file_name()
+        //         .into_string()
+        //         .unwrap()
+        //         .starts_with("10")
+        // })
         .map(|dir_entry| {
             let mut name_with_ext = dir_entry.unwrap().file_name().into_string().unwrap();
             name_with_ext.drain(name_with_ext.find('.').unwrap()..name_with_ext.len());
@@ -46,6 +55,7 @@ _num_app:
     .section .data
     .global app_{0}_start
     .global app_{0}_end
+    .align 3
 app_{0}_start:
     .incbin "{2}{1}"
 app_{0}_end:"#,

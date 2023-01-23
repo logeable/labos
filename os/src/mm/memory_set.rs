@@ -1,12 +1,6 @@
 use core::arch::asm;
 
-use alloc::{
-    collections::BTreeMap,
-    format,
-    string::{String, ToString},
-    sync::Arc,
-    vec::Vec,
-};
+use alloc::{collections::BTreeMap, sync::Arc, vec::Vec};
 use bitflags::bitflags;
 use lazy_static::lazy_static;
 
@@ -103,7 +97,7 @@ impl MapArea {
                 .translate(current_vpn)
                 .unwrap()
                 .ppn()
-                .get_bytes_array();
+                .get_bytes_array()[..src.len()];
             dst.copy_from_slice(src);
             start += PAGE_SIZE;
             if start >= len {
@@ -234,7 +228,6 @@ impl MemorySet {
         let mut max_end_vpn = VirtPageNum(0);
         for i in 0..ph_count {
             let ph = elf.program_header(i).unwrap();
-            println!("load app {:?}", ph);
             if ph.get_type().unwrap() == program::Type::Load {
                 let start_va: VirtAddr = (ph.virtual_addr() as usize).into();
                 let end_va: VirtAddr = ((ph.virtual_addr() + ph.mem_size()) as usize).into();
@@ -304,6 +297,14 @@ impl MemorySet {
             satp::write(satp);
             asm!("sfence.vma");
         }
+    }
+
+    pub fn translate(&self, vpn: VirtPageNum) -> Option<PhysPageNum> {
+        self.page_table.translate(vpn).map(|x| x.ppn())
+    }
+
+    pub fn token(&self) -> usize {
+        self.page_table.token()
     }
 }
 

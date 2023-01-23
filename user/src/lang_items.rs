@@ -6,7 +6,7 @@ use crate::exit;
 fn panic(info: &PanicInfo) -> ! {
     if let Some(location) = info.location() {
         println!(
-            "\x1b[31mPanicked at {}:{} {}\x1b[0m",
+            "\x1b[31m[User mode]Panicked at {}:{} {}\x1b[0m",
             location.file(),
             location.line(),
             info.message().unwrap(),

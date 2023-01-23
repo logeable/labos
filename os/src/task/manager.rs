@@ -1,7 +1,11 @@
+use core::borrow::Borrow;
+
+use alloc::vec::Vec;
+
 use crate::{
-    config::MAX_APP_NUM,
-    loader::{get_num_app, init_app_cx},
+    loader::{get_app_data, get_num_app},
     sync::UPSafeCell,
+    trap::TrapContext,
 };
 
 use super::{
@@ -19,17 +23,13 @@ impl TaskManager {
     pub fn new() -> Self {
         let num_app = get_num_app();
 
-        let mut tasks = [TaskControlBlock {
-            task_status: TaskStatus::UnInit,
-            task_cx: TaskContext::zero_init(),
-        }; MAX_APP_NUM];
-
+        let mut tasks = Vec::new();
         for i in 0..num_app {
-            tasks[i].task_status = TaskStatus::Ready;
-            tasks[i].task_cx = TaskContext::goto_restore(init_app_cx(i));
+            tasks.push(TaskControlBlock::new(get_app_data(i), i))
         }
+
         Self {
-            num_app: MAX_APP_NUM,
+            num_app,
             inner: unsafe { UPSafeCell::new(TaskManagerInner::new(tasks, 0)) },
         }
     }
@@ -85,15 +85,25 @@ impl TaskManager {
             .map(|id| id % self.num_app)
             .find(|&id| inner.tasks[id].task_status == TaskStatus::Ready)
     }
+
+    pub fn get_current_token(&self) -> usize {
+        let inner = self.inner.exclusive_access();
+        inner.tasks[inner.current_task].get_user_token()
+    }
+
+    pub fn get_current_trap_cx(&self) -> &'static mut TrapContext {
+        let inner = self.inner.exclusive_access();
+        inner.tasks[inner.current_task].get_trap_cx()
+    }
 }
 
 struct TaskManagerInner {
-    tasks: [TaskControlBlock; MAX_APP_NUM],
+    tasks: Vec<TaskControlBlock>,
     current_task: usize,
 }
 
 impl TaskManagerInner {
-    fn new(tasks: [TaskControlBlock; MAX_APP_NUM], current_task: usize) -> Self {
+    fn new(tasks: Vec<TaskControlBlock>, current_task: usize) -> Self {
         Self {
             tasks,
             current_task,
