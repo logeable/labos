@@ -8,7 +8,6 @@ use super::context::TaskContext;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum TaskStatus {
-    UnInit,
     Ready,
     Running,
     Exited,

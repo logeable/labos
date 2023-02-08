@@ -1,5 +1,3 @@
-use core::borrow::Borrow;
-
 use alloc::vec::Vec;
 
 use crate::{
@@ -56,7 +54,6 @@ impl TaskManager {
             let next_task_cx_ptr = &inner.tasks[next].task_cx as *const TaskContext;
             drop(inner);
 
-            //println!("[kernel] run next app: {}", next);
             unsafe { __switch(current_task_cx_ptr, next_task_cx_ptr) };
         } else {
             panic!("All tasks completed!");
@@ -72,7 +69,6 @@ impl TaskManager {
 
         let mut _unused = TaskContext::zero_init();
 
-        //println!("[kernel] run first app");
         unsafe {
             __switch(&mut _unused as *mut TaskContext, next_task_cx_ptr);
         }

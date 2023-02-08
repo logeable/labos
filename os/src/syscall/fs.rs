@@ -1,5 +1,7 @@
 use crate::{mm::translated_byte_buffer, task::current_user_token};
 
+#[allow(dead_code)]
+const FD_STDIN: usize = 0;
 const FD_STDOUT: usize = 1;
 
 pub fn sys_write(fd: usize, buf: *const u8, len: usize) -> isize {

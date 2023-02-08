@@ -17,17 +17,6 @@ impl TaskContext {
         }
     }
 
-    pub fn goto_restore(kstack_ptr: usize) -> Self {
-        extern "C" {
-            fn __restore();
-        }
-        Self {
-            ra: __restore as usize,
-            sp: kstack_ptr,
-            s: [0; 12],
-        }
-    }
-
     pub fn goto_trap_return(kstack_ptr: usize) -> Self {
         Self {
             ra: trap_return as usize,

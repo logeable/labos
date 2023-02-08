@@ -1,5 +1,5 @@
+use alloc::vec;
 use alloc::vec::Vec;
-use alloc::{format, vec};
 use bitflags::bitflags;
 
 use super::{

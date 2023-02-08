@@ -54,6 +54,7 @@ impl MapArea {
         }
     }
 
+    #[allow(dead_code)]
     pub fn unmap(&mut self, page_table: &mut PageTable) {
         for vpn in self.vpn_range {
             self.unmap_one(page_table, vpn);
@@ -308,6 +309,7 @@ impl MemorySet {
     }
 }
 
+#[allow(unused)]
 extern "C" {
     fn skernel();
     fn stext();
