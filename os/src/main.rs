@@ -2,7 +2,6 @@
 #![no_main]
 #![feature(panic_info_message)]
 #![feature(alloc_error_handler)]
-#![deny(warnings)]
 
 extern crate alloc;
 
@@ -30,15 +29,16 @@ global_asm!(include_str!("link_app.asm"));
 pub fn rust_main() -> ! {
     clear_bss();
     print_layout();
+    logger::init().unwrap();
 
     mm::init();
-    logger::init().unwrap();
+    loader::list_apps();
+    task::add_initproc();
     trap::init();
     trap::enable_timer_interrupt();
     timer::set_next_trigger();
 
-    task::run_first_task();
-
+    task::run_tasks();
     unreachable!()
 }
 
@@ -67,7 +67,6 @@ fn print_layout() {
         fn sbss();
         fn ebss();
         fn ekernel();
-        //fn rust_main();
     }
     println!(
         "kernel [{:#x}, {:#x}] rust_main = {:#x}",
