@@ -3,7 +3,12 @@ use lazy_static::lazy_static;
 
 use crate::{sync::UPSafeCell, trap::TrapContext};
 
-use super::{context::TaskContext, manager::fetch_task, switch::__switch, task::TaskControlBlock};
+use super::{
+    context::TaskContext,
+    manager::fetch_task,
+    switch::__switch,
+    task::{TaskControlBlock, TaskStatus},
+};
 
 lazy_static! {
     pub static ref PROCESSOR: UPSafeCell<Processor> = unsafe { UPSafeCell::new(Processor::new()) };
@@ -63,8 +68,9 @@ pub fn run_tasks() {
         let mut processor = PROCESSOR.exclusive_access();
         if let Some(task) = fetch_task() {
             let idle_task_cx_ptr = processor.get_idle_task_cx_ptr();
-            let task_inner = task.inner_exclusive_access();
+            let mut task_inner = task.inner_exclusive_access();
             let next_task_cx_ptr = &task_inner.task_cx as *const TaskContext;
+            task_inner.task_status = TaskStatus::Running;
             drop(task_inner);
             processor.current = Some(task);
             drop(processor);
