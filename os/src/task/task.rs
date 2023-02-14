@@ -6,8 +6,8 @@ use alloc::{
 };
 
 use crate::{
-    config::{kernel_stack_position, TRAP_CONTEXT},
-    mm::{MapPermission, MemorySet, PhysPageNum, VirtAddr, KERNEL_SPACE},
+    config::TRAP_CONTEXT,
+    mm::{MemorySet, PhysPageNum, VirtAddr, KERNEL_SPACE},
     sync::UPSafeCell,
     trap::{trap_handler, TrapContext},
 };
@@ -21,7 +21,6 @@ use super::{
 pub enum TaskStatus {
     Ready,
     Running,
-    Exited,
     Zombie,
 }
 

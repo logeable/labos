@@ -69,6 +69,7 @@ impl KernelStack {
         Self { pid }
     }
 
+    #[allow(dead_code)]
     pub fn push_on_top<T>(&self, value: T) -> *mut T {
         let kernel_stack_top = self.get_top();
         let ptr_mut = (kernel_stack_top - mem::size_of::<T>()) as *mut T;

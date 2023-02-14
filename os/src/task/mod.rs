@@ -1,7 +1,7 @@
 use alloc::sync::Arc;
 use lazy_static::lazy_static;
 
-use crate::{loader::get_app_data_by_name, trap::TrapContext};
+use crate::loader::get_app_data_by_name;
 
 use self::{
     context::TaskContext,
@@ -27,14 +27,6 @@ lazy_static! {
 
 pub fn add_initproc() {
     add_task(INITPROC.clone());
-}
-
-pub fn run_first_task() {
-    //TASK_MANAGER.run_first_task()
-}
-
-pub fn run_next_task() {
-    //TASK_MANAGER.run_next_task();
 }
 
 pub fn suspend_current_and_run_next() {
@@ -68,8 +60,4 @@ pub fn exit_current_and_run_next(exit_code: i32) {
     drop(inner);
     drop(task);
     schedule(&mut TaskContext::zero_init());
-}
-
-fn mark_current_exited() {
-    //TASK_MANAGER.mark_current_exited();
 }
